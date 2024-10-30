@@ -1,0 +1,148 @@
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Manage Finance</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                <li class="breadcrumb-item">Finance</li>
+                <li class="breadcrumb-item active">All-Finance</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+
+
+
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">All Finance</h5>
+                        <div class="table-responsive">
+                            <table class="table datatable">
+                                <div class="card p-3 shadow-sm">
+                                    <form action="/admin/all-orders" method="GET">
+                                        <div class="row">
+                                            <div class="col-lg-5">
+                                                <label for="fromDate">From Date:</label>
+                                                <input type="date" id="fromDate" name="fromDate" class="form-control"
+                                                    value="{{fromDate}}">
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <label for="toDate">To Date:</label>
+                                                <input type="date" id="toDate" class="form-control" name="toDate"
+                                                    value="{{toDate}}">
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <button class="btn btn-dark btn-sm mt-4 w-100" type="submit">Get Report
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+
+                                            <button type="button" class="btn btn-secondary btn-sm mt-3 w-25"
+                                                id="clearBtn">Get All Reports</button>
+
+                                            <button type="button" class="btn btn-primary btn-sm mt-3 w-25"
+                                                id="printButton">Print Current Report</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th data-type="date" data-format="YYYY/DD/MM">Joined Date</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Amount</th>
+                                        {{!-- <th>City</th>
+                                        <th>Manage</th> --}}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each orders}}
+                                    <tr>
+                                        <th scope="row">{{incremented @index}}</th>
+                                        <td class="date-cell">{{this.date}}</td>
+                                        <td>{{this.user.Fname}}{{this.user.Lname}}</td>
+                                        <td>{{this.deliveryDetails.Phone}}</td>
+                                        <td>{{this.totalAmount}}/-</td>
+                                        {{!-- <td>
+                                            <div class="d-flex gap-2">
+                                                {{#if this.approved}}
+                                                <span class="badge bg-success p-2">Approved</span>
+                                                {{else if this.rejected}}
+                                                <span class="badge bg-danger p-2">Rejected</span>
+                                                {{else}}
+                                                <form action="/admin/approve-builder/{{this._id}}" method="POST">
+                                                    <button type="submit" class="btn btn-success btn-sm"><i
+                                                            class="bi bi-check2"></i></button>
+                                                </form>
+                                                <form action="/admin/reject-builder/{{this._id}}" method="POST">
+                                                    <button type="submit" class="btn btn-dark btn-sm"><i
+                                                            class="bi bi-ban"></i></button>
+                                                </form>
+                                                {{/if}}
+                                                <form action="/admin/delete-builder/{{this._id}}" method="POST">
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i
+                                                            class="bi bi-trash"></i></button>
+                                                </form>
+                                            </div>
+                                        </td> --}}
+
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->
+
+<script>
+    document.querySelectorAll('.date-cell').forEach(function (cell) {
+        const rawDate = cell.textContent;  // Get the original date string
+        const date = new Date(rawDate);    // Convert it to a Date object
+
+        // Format the date (e.g., 12 Oct 2024 | 11:50)
+        const formattedDate = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+
+        const formattedTime = date.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        // Set the formatted date and time back in the cell
+        cell.textContent = `${formattedDate} | ${formattedTime}`;
+    });
+
+</script>
+
+<script>
+    document.getElementById('clearBtn').addEventListener('click', function () {
+        // Redirect to the base URL without any query parameters
+        window.location.href = '/admin/all-orders';
+    });
+</script>
+
+<script>
+    // Print Button functionality
+    document.getElementById('printButton').addEventListener('click', function () {
+        window.print();  // This will trigger the browser's print dialog
+    });
+</script>
