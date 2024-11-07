@@ -96,8 +96,7 @@
                 <div class="d-flex justify-content-between ">
                     <div class="invoice-info  mb-4">
                         <p style="font-size: 12px; margin-bottom:5px">Form : </p>
-                        <h5 class="mb-1 fz-14">{{workspaces.workspace.bname}}</h5>
-                        <h5 class="mb-1 fz-12">{{workspaces.workspace.baddress}}</h5>
+                        <h5 class="mb-1 fz-14">City Navigation</h5>
 
                     </div>
                     <div class="invoice-info text-end  mb-4">
@@ -115,29 +114,27 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Sl.</th>
-                                    <th>Title</th>
+                                    <th>Place</th>
                                     <th>Selected Date</th>
                                     <th>Booking Status</th>
                                     <th>Payment Status</th>
 
-                                    <th>Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td>{{workspaces.workspace.wname}}</td>
+                                    <td>{{workspaces.workspace.place}}</td>
                                     <td>{{workspaces.deliveryDetails.selecteddate}}</td>
                                     {{!--
                                     <pre>{{{json workspaces}}}</pre> --}}
 
                                     <td class="status">{{workspaces.status}}</td>
                                     <td class="payment-method">{{workspaces.paymentMethod}}</td>
-                                    <td>{{workspaces.totalAmount}}/-</td>
                                 </tr>
 
                             </tbody>
-                            <tfoot class="table-light">
+                            {{!-- <tfoot class="table-light">
                                 <tr>
                                     <td class="text-end" colspan="5">Total:</td>
                                     <td class="text-end">{{workspaces.totalAmount}}/-</td>
@@ -150,7 +147,7 @@
                                     <td class="text-end" colspan="5">Grand Total:</td>
                                     <td class="text-end">{{workspaces.totalAmount}}/-</td>
                                 </tr>
-                            </tfoot>
+                            </tfoot> --}}
                         </table>
                     </div>
                 </div>

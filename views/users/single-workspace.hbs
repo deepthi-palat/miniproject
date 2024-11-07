@@ -15,31 +15,61 @@
                         </div>
                     </div>
                 </div>
+                <div class="card product-details-card mb-3 direction-rtl">
+                    <div class="card-body">
+                        <h5>Services</h5>
+                        <hr>
+                        <ul>
+                            <li><b>Police Station </b><br>
+                                {{workspace.ps}} : {{workspace.psn}}
+                            </li>
+                            <hr>
+                            <li><b>Restaurent </b><br>
+                                {{workspace.hotel}} : {{workspace.hotelnumber}}
+                            </li>
+                            <hr>
+                            <li><b>Hospital </b><br>
+                                {{workspace.hospital}} : {{workspace.hospitalnumber}}
+                            </li>
+                            <hr>
+                            <li><b>Dormitory </b><br>
+                                {{workspace.dormitory}} : {{workspace.dormitorynumber}}
+                            </li>
+                            <hr>
+                            <li><b>Best Touriest Place </b><br>
+                                {{workspace.touriest}} : <a href="{{workspace.location}}" class="btn btn-dark btn-sm"
+                                    target="_blank">Get Direction</a>
+                            </li>
+
+
+                        </ul>
+
+                    </div>
+                </div>
             </div>
+
+
             <div class="col-lg-6">
                 <div class="card product-details-card mb-3 direction-rtl">
                     <div class="card-body">
-                        <h3>{{workspace.wname}}</h3>
-                        <h5>{{workspace.Price}}/-</h5>
-                        <p><b>Location: </b>{{workspace.baddress}}</p>
-                        <h5>Description</h5>
+                        <h3>{{workspace.place}}</h3> <br>
+                        <h6>About {{workspace.place}}</h6>
                         <p>{{workspace.desc}}</p>
+                        <br>
+                        <h6>More informations</h6>
+                        <p>{{{workspace.amenities}}}</p>
 
                         <div class="input-group">
                             <button class="btn btn-dark w-100 mt-4 buy-now" data-id="{{workspace._id}}"
                                 data-seats="{{workspace.seat}}" onclick="buyNow('{{workspace._id}}')">
-                                Book Now
+                                Book a guide?
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="card product-details-card mb-3 direction-rtl">
-                    <div class="card-body">
-                        <h5>Amenities</h5>
-                        <p>{{{workspace.amenities}}}</p>
-                    </div>
-                </div>
+
             </div>
+
 
         </div>
 
