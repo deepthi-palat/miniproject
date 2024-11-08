@@ -289,21 +289,9 @@ module.exports = {
         console.log(order, workspace, total);
         let status = order["payment-method"] === "COD" ? "placed" : "pending";
 
-        // Get the workspace document to check the current seat value
-        const workspaceDoc = await db.get()
-          .collection(collections.WORKSPACE_COLLECTION)
-          .findOne({ _id: objectId(workspace._id) });
 
-        // Check if the workspace exists and the seat field is present
-        if (!workspaceDoc || !workspaceDoc.seat) {
-          return reject(new Error("Workspace not found or seat field is missing."));
-        }
 
-        // Convert seat from string to number and check availability
-        let seatCount = Number(workspaceDoc.seat);
-        if (isNaN(seatCount) || seatCount <= 0) {
-          return reject(new Error("Seat is not available."));
-        }
+
 
         // Create the order object
         let orderObject = {
@@ -333,16 +321,8 @@ module.exports = {
           .collection(collections.ORDER_COLLECTION)
           .insertOne(orderObject);
 
-        // Decrement the seat count
-        seatCount -= 1; // Decrement the seat count
 
-        // Convert back to string and update the workspace seat count
-        await db.get()
-          .collection(collections.WORKSPACE_COLLECTION)
-          .updateOne(
-            { _id: objectId(workspace._id) },
-            { $set: { seat: seatCount.toString() } } // Convert number back to string
-          );
+
 
         resolve(response.ops[0]._id);
       } catch (error) {
