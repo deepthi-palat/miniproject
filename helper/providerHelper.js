@@ -148,14 +148,19 @@ module.exports = {
 
   ///////ADD workspace DETAILS/////////////////////                                            
   getworkspaceDetails: (workspaceId) => {
+    if (!objectId.isValid(workspaceId)) {
+      return Promise.reject(new Error("Invalid workspace ID"));
+    }
+
     return new Promise((resolve, reject) => {
       db.get()
         .collection(collections.WORKSPACE_COLLECTION)
-        .findOne({
-          _id: objectId(workspaceId)
-        })
+        .findOne({ _id: objectId(workspaceId) })
         .then((response) => {
           resolve(response);
+        })
+        .catch((error) => {
+          reject(error);
         });
     });
   },
@@ -186,12 +191,22 @@ module.exports = {
           },
           {
             $set: {
-              wname: workspaceDetails.wname,
-              seat: workspaceDetails.seat,
-              Price: workspaceDetails.Price,
-              format: workspaceDetails.format,
+              place: workspaceDetails.place,
               desc: workspaceDetails.desc,
-              baddress: workspaceDetails.baddress,
+              amenities: workspaceDetails.amenities,
+              ps: workspaceDetails.ps,
+              psn: workspaceDetails.psn,
+              hotel: workspaceDetails.hotel,
+
+              hotelnumber: workspaceDetails.hotelnumber,
+              hospital: workspaceDetails.hospital,
+              hospitalnumber: workspaceDetails.hospitalnumber,
+              dormitory: workspaceDetails.dormitory,
+              dormitorynumber: workspaceDetails.dormitorynumber,
+              touriest: workspaceDetails.touriest,
+              location: workspaceDetails.location,
+              Price: workspaceDetails.Price,
+
 
             },
           }
@@ -423,41 +438,14 @@ module.exports = {
           return reject(new Error("Order not found."));
         }
 
-        const workspaceId = order.workspace._id; // Get the workspace ID from the order
 
         // Remove the order from the database
         await db.get()
           .collection(collections.ORDER_COLLECTION)
           .deleteOne({ _id: objectId(orderId) });
 
-        // Get the current seat count from the workspace
-        const workspaceDoc = await db.get()
-          .collection(collections.WORKSPACE_COLLECTION)
-          .findOne({ _id: objectId(workspaceId) });
 
-        // Check if the seat field exists and is a string
-        if (workspaceDoc && workspaceDoc.seat) {
-          let seatCount = Number(workspaceDoc.seat); // Convert seat count from string to number
 
-          // Check if the seatCount is a valid number
-          if (!isNaN(seatCount)) {
-            seatCount += 1; // Increment the seat count
-
-            // Convert back to string and update the workspace seat count
-            await db.get()
-              .collection(collections.WORKSPACE_COLLECTION)
-              .updateOne(
-                { _id: objectId(workspaceId) },
-                { $set: { seat: seatCount.toString() } } // Convert number back to string
-              );
-
-            resolve(); // Successfully updated the seat count
-          } else {
-            return reject(new Error("Seat count is not a valid number."));
-          }
-        } else {
-          return reject(new Error("Workspace not found or seat field is missing."));
-        }
       } catch (error) {
         console.error("Error canceling order:", error);
         reject(error);

@@ -9,6 +9,8 @@ module.exports = {
     FEEDBACK_COLLECTION: "feedback",
     NOTIFICATION_COLLECTION: "notification",
     DRIVER_COLLECTION: 'driver',
+    SERVICE_COLLECTION: 'service',
+    SERVICE_ORDER_COLLECTION: 'service-order',
 
 
 }

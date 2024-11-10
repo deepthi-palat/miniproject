@@ -181,7 +181,7 @@
             <a href="/driver/profile" class="btn btn-sm btn-info mt-3">My Profile</a>
             {{else}}
             <div class="user-info">
-                <h6 class="user-name mb-0">City Navigation</h6><span>www.co-workspace.com</span>
+                <h6 class="user-name mb-0">City Navigation</h6><span>www.citynavigation.com</span>
             </div>
             {{/if}}
         </div>
@@ -190,11 +190,13 @@
         <ul class="sidenav-nav ps-0">
             {{#if driver}}
             <li><a href="/driver"><i class="bi bi-house-door"></i>Home</a></li>
-            <li><a href="/driver/all-users"><i class="bi bi-people"></i>Manage Users</a></li>
+            {{!-- <li><a href="/driver/all-users"><i class="bi bi-people"></i>Manage Users</a></li> --}}
+            <li><a href="/driver/all-services"><i class="bi bi-people"></i>Manage Service</a></li>
+
             {{!-- <li><a href="/driver/all-workspaces"><i class="bi bi-layers"></i>Manage Workspace</a></li> --}}
             <li><a href="/driver/all-orders"><i class="bi bi-telephone"></i>Manage Bookings and Reservations</a></li>
-            <li><a href="/driver/all-transactions"><i class="bi bi-wallet2"></i>Manage Transactions</a></li>
-            <li><a href="/driver/driver-feedback"><i class="bi bi-megaphone"></i>Manage Feedbacks</a></li>
+            {{!-- <li><a href="/driver/all-transactions"><i class="bi bi-wallet2"></i>Manage Transactions</a></li>
+            <li><a href="/driver/driver-feedback"><i class="bi bi-megaphone"></i>Manage Feedbacks</a></li> --}}
 
 
             {{!-- <li><a href="#"><i class="bi bi-cart-check"></i>Shop</a>
