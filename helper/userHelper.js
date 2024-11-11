@@ -13,6 +13,17 @@ var instance = new Razorpay({
 
 module.exports = {
 
+  getAllservices: () => {
+    return new Promise(async (resolve, reject) => {
+      let services = await db
+        .get()
+        .collection(collections.SERVICE_COLLECTION)
+        .find()
+        .toArray();
+      resolve(services);
+    });
+  },
+
   addFeedback: (feedback) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -349,6 +360,23 @@ module.exports = {
     });
   },
 
+
+  getUserServiceorders: (userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let serviceorders = await db
+          .get()
+          .collection(collections.SERVICE_ORDER_COLLECTION)
+          .find({ userId: ObjectId(userId) }) // Use 'userId' directly, not inside 'orderObject'
+          .toArray();
+
+        resolve(serviceorders);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+
   getOrderWorkspaces: (orderId) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -465,4 +493,113 @@ module.exports = {
 
     });
   },
+
+
+
+
+
+
+
+
+  /////////////
+
+
+
+  placeOrderService: (order, service, total, user) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log(order, service, total);
+        let status = order["payment-method"] === "COD" ? "placed" : "pending";
+
+
+
+
+
+        // Create the order object
+        let orderObject = {
+          deliveryDetails: {
+            Fname: order.Fname,
+            Lname: order.Lname,
+            Email: order.Email,
+            Phone: order.Phone,
+            Address: order.Address,
+            District: order.District,
+            State: order.State,
+            Pincode: order.Pincode,
+            selecteddate: order.selecteddate,
+          },
+          userId: objectId(order.userId),
+          user: user,
+          paymentMethod: order["payment-method"],
+          service: service,
+          totalAmount: total,
+          status: status,
+          date: new Date(),
+          driverId: service.driverId, // Store the provider's ID
+        };
+
+        // Insert the order into the database
+        const response = await db.get()
+          .collection(collections.SERVICE_ORDER_COLLECTION)
+          .insertOne(orderObject);
+
+
+
+
+        resolve(response.ops[0]._id);
+      } catch (error) {
+        console.error("Error placing order:", error);
+        reject(error);
+      }
+    });
+  },
+
+
+
+  getOrderServices: (orderId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let services = await db
+          .get()
+          .collection(collections.SERVICE_ORDER_COLLECTION)
+          .aggregate([
+            {
+              $match: { _id: objectId(orderId) }, // Match the order by its ID
+            },
+            {
+              $project: {
+                // Include service, user, and other relevant fields
+                service: 1,
+                user: 1,
+                paymentMethod: 1,
+                totalAmount: 1,
+                status: 1,
+                date: 1,
+                deliveryDetails: 1, // Add deliveryDetails to the projection
+
+              },
+            },
+          ])
+          .toArray();
+
+        resolve(services[0]); // Fetch the first (and likely only) order matching this ID
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+
+  getServiceDetails: (serviceId) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(collections.SERVICE_COLLECTION)
+        .findOne({
+          _id: objectId(serviceId)
+        })
+        .then((response) => {
+          resolve(response);
+        });
+    });
+  },
+
 };

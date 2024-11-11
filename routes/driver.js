@@ -145,38 +145,38 @@ router.get("/driver-feedback", async function (req, res) {
 
 
 ///////ALL workspace/////////////////////                                         
-router.get("/all-workspaces", verifySignedIn, function (req, res) {
+router.get("/all-services", verifySignedIn, function (req, res) {
   let driver = req.session.driver;
-  driverHelper.getAllworkspaces(req.session.driver._id).then((workspaces) => {
-    res.render("driver/all-workspaces", { driver: true, layout: "layout", workspaces, driver });
+  driverHelper.getAllservices(req.session.driver._id).then((services) => {
+    res.render("driver/all-services", { driver: true, layout: "layout", services, driver });
   });
 });
 
 ///////ADD workspace/////////////////////                                         
-router.get("/add-workspace", verifySignedIn, function (req, res) {
+router.get("/add-service", verifySignedIn, function (req, res) {
   let driver = req.session.driver;
-  res.render("driver/add-workspace", { driver: true, layout: "layout", driver });
+  res.render("driver/add-service", { driver: true, layout: "layout", driver });
 });
 
-///////ADD workspace/////////////////////                                         
-router.post("/add-workspace", function (req, res) {
+///////ADD service/////////////////////                                         
+router.post("/add-service", function (req, res) {
   // Ensure the driver is signed in and their ID is available
   if (req.session.signedInDriver && req.session.driver && req.session.driver._id) {
     const driverId = req.session.driver._id; // Get the driver's ID from the session
 
-    // Pass the driverId to the addworkspace function
-    driverHelper.addworkspace(req.body, driverId, (workspaceId, error) => {
+    // Pass the driverId to the addservice function
+    driverHelper.addservice(req.body, driverId, (serviceId, error) => {
       if (error) {
-        console.log("Error adding workspace:", error);
-        res.status(500).send("Failed to add workspace");
+        console.log("Error adding service:", error);
+        res.status(500).send("Failed to add service");
       } else {
         let image = req.files.Image;
-        image.mv("./public/images/workspace-images/" + workspaceId + ".png", (err) => {
+        image.mv("./public/images/service-images/" + serviceId + ".png", (err) => {
           if (!err) {
-            res.redirect("/driver/all-workspaces");
+            res.redirect("/driver/all-services");
           } else {
-            console.log("Error saving workspace image:", err);
-            res.status(500).send("Failed to save workspace image");
+            console.log("Error saving service image:", err);
+            res.status(500).send("Failed to save service image");
           }
         });
       }
@@ -188,42 +188,42 @@ router.post("/add-workspace", function (req, res) {
 });
 
 
-///////EDIT workspace/////////////////////                                         
-router.get("/edit-workspace/:id", verifySignedIn, async function (req, res) {
+///////EDIT service/////////////////////                                         
+router.get("/edit-service/:id", verifySignedIn, async function (req, res) {
   let driver = req.session.driver;
-  let workspaceId = req.params.id;
-  let workspace = await driverHelper.getworkspaceDetails(workspaceId);
-  console.log(workspace);
-  res.render("driver/edit-workspace", { driver: true, layout: "layout", workspace, driver });
+  let serviceId = req.params.id;
+  let service = await driverHelper.getserviceDetails(serviceId);
+  console.log(service);
+  res.render("driver/edit-service", { driver: true, layout: "layout", service, driver });
 });
 
-///////EDIT workspace/////////////////////                                         
-router.post("/edit-workspace/:id", verifySignedIn, function (req, res) {
-  let workspaceId = req.params.id;
-  driverHelper.updateworkspace(workspaceId, req.body).then(() => {
+///////EDIT service/////////////////////                                         
+router.post("/edit-service/:id", verifySignedIn, function (req, res) {
+  let serviceId = req.params.id;
+  driverHelper.updateservice(serviceId, req.body).then(() => {
     if (req.files) {
       let image = req.files.Image;
       if (image) {
-        image.mv("./public/images/workspace-images/" + workspaceId + ".png");
+        image.mv("./public/images/service-images/" + serviceId + ".png");
       }
     }
-    res.redirect("/driver/all-workspaces");
+    res.redirect("/driver/all-services");
   });
 });
 
-///////DELETE workspace/////////////////////                                         
-router.get("/delete-workspace/:id", verifySignedIn, function (req, res) {
-  let workspaceId = req.params.id;
-  driverHelper.deleteworkspace(workspaceId).then((response) => {
-    fs.unlinkSync("./public/images/workspace-images/" + workspaceId + ".png");
-    res.redirect("/driver/all-workspaces");
+///////DELETE service/////////////////////                                         
+router.get("/delete-service/:id", verifySignedIn, function (req, res) {
+  let serviceId = req.params.id;
+  driverHelper.deleteservice(serviceId).then((response) => {
+    fs.unlinkSync("./public/images/service-images/" + serviceId + ".png");
+    res.redirect("/driver/all-services");
   });
 });
 
-///////DELETE ALL workspace/////////////////////                                         
-router.get("/delete-all-workspaces", verifySignedIn, function (req, res) {
-  driverHelper.deleteAllworkspaces().then(() => {
-    res.redirect("/driver/all-workspaces");
+///////DELETE ALL service/////////////////////                                         
+router.get("/delete-all-services", verifySignedIn, function (req, res) {
+  driverHelper.deleteAllservices().then(() => {
+    res.redirect("/driver/all-services");
   });
 });
 
@@ -297,24 +297,19 @@ router.post("/signup", async function (req, res) {
   if (!Pincode) errors.pincode = "Please enter your pincode.";
   if (!Password) errors.password = "Please enter a password.";
 
-  // Check if email or company name already exists
-  const existingEmail = await db.get()
-    .collection(collections.DRIVER_COLLECTION)
-    .findOne({ Email });
+  // Check if email, company name, or phone already exists
+  const existingEmail = await db.get().collection(collections.DRIVER_COLLECTION).findOne({ Email });
   if (existingEmail) errors.email = "This email is already registered.";
 
-  const existingCompanyname = await db.get()
-    .collection(collections.DRIVER_COLLECTION)
-    .findOne({ Companyname });
+  const existingCompanyname = await db.get().collection(collections.DRIVER_COLLECTION).findOne({ Companyname });
   if (existingCompanyname) errors.Companyname = "This company name is already registered.";
+
+  const existingPhone = await db.get().collection(collections.DRIVER_COLLECTION).findOne({ Phone });
+  if (existingPhone) errors.phone = "This phone number is already registered.";
 
   // Validate Pincode and Phone
   if (!/^\d{6}$/.test(Pincode)) errors.pincode = "Pincode must be exactly 6 digits.";
   if (!/^\d{10}$/.test(Phone)) errors.phone = "Phone number must be exactly 10 digits.";
-  const existingPhone = await db.get()
-    .collection(collections.DRIVER_COLLECTION)
-    .findOne({ Phone });
-  if (existingPhone) errors.phone = "This phone number is already registered.";
 
   // If there are validation errors, re-render the form
   if (Object.keys(errors).length > 0) {
@@ -332,6 +327,7 @@ router.post("/signup", async function (req, res) {
     });
   }
 
+  // Perform signup
   driverHelper.dosignup(req.body).then((response) => {
     if (!response) {
       req.session.signUpErr = "Invalid Admin Code";
@@ -341,54 +337,61 @@ router.post("/signup", async function (req, res) {
     // Extract the id properly, assuming it's part of an object (like MongoDB ObjectId)
     const id = response._id ? response._id.toString() : response.toString();
 
-    // Ensure the images directory exists
+    // Ensure directories for images and PDFs exist
     const imageDir = "./public/images/driver-images/";
-    if (!fs.existsSync(imageDir)) {
-      fs.mkdirSync(imageDir, { recursive: true });
-    }
+    const pdfDir = "./public/driver-pdf/";
+
+    if (!fs.existsSync(imageDir)) fs.mkdirSync(imageDir, { recursive: true });
+    if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
 
     // Handle image upload
     if (req.files && req.files.Image) {
       let image = req.files.Image;
-      let imagePath = imageDir + id + ".png";  // Use the extracted id here
-
-      console.log("Saving image to:", imagePath);  // Log the correct image path
+      let imagePath = imageDir + id + ".png";
 
       image.mv(imagePath, (err) => {
-        if (!err) {
-          // On successful image upload, redirect to pending approval
-          req.session.signedInDriver = true;
-          req.session.driver = response;
-          res.redirect("/driver/pending-approval");
-        } else {
-          console.log("Error saving image:", err);  // Log any errors
-          res.status(500).send("Error uploading image");
+        if (err) {
+          console.log("Error saving image:", err);
+          return res.status(500).send("Error uploading image");
         }
       });
-    } else {
-      // No image uploaded, proceed without it
-      req.session.signedInDriver = true;
-      req.session.driver = response;
-      res.redirect("/driver/pending-approval");
     }
+
+    // Handle PDF upload
+    if (req.files && req.files.Pdf) {
+      let pdf = req.files.Pdf;
+      let pdfPath = pdfDir + id + ".pdf";  // Save PDF with driver's ID as the filename
+
+      pdf.mv(pdfPath, (err) => {
+        if (err) {
+          console.log("Error saving PDF:", err);
+          return res.status(500).send("Error uploading PDF");
+        }
+      });
+    }
+
+    // Set session and redirect
+    req.session.signedInDriver = true;
+    req.session.driver = response;
+    res.redirect("/driver/pending-approval");
   }).catch((err) => {
     console.log("Error during signup:", err);
     res.status(500).send("Error during signup");
   });
-}),
+});
 
 
-  router.get("/signin", function (req, res) {
-    if (req.session.signedInDriver) {
-      res.redirect("/driver");
-    } else {
-      res.render("driver/signin", {
-        driver: true, layout: "empty",
-        signInErr: req.session.signInErr,
-      });
-      req.session.signInErr = null;
-    }
-  });
+router.get("/signin", function (req, res) {
+  if (req.session.signedInDriver) {
+    res.redirect("/driver");
+  } else {
+    res.render("driver/signin", {
+      driver: true, layout: "empty",
+      signInErr: req.session.signInErr,
+    });
+    req.session.signInErr = null;
+  }
+});
 
 router.post("/signin", function (req, res) {
   const { Email, Password } = req.body;
@@ -512,12 +515,12 @@ router.get("/all-orders", verifySignedIn, async function (req, res) {
   let driverId = driver._id; // Adjust based on how driver ID is stored in session
 
   // Pass driverId to getAllOrders
-  let orders = await driverHelper.getAllOrders(driverId);
+  let serviceorders = await driverHelper.getAllServiceOrders(driverId);
 
   res.render("driver/all-orders", {
     driver: true,
     layout: "layout",
-    orders,
+    serviceorders,
     driver
   });
 });

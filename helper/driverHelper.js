@@ -6,6 +6,111 @@ const objectId = require("mongodb").ObjectID;
 module.exports = {
 
 
+
+  ///////ADD workspace/////////////////////                                         
+  addservice: (service, driverId, callback) => {
+    if (!driverId || !objectId.isValid(driverId)) {
+      return callback(null, new Error("Invalid or missing driverId"));
+    }
+
+    service.Price = parseInt(service.Price);
+    service.driverId = objectId(driverId); // Associate service with the driver
+
+    db.get()
+      .collection(collections.SERVICE_COLLECTION)
+      .insertOne(service)
+      .then((data) => {
+        callback(data.ops[0]._id); // Return the inserted service ID
+      })
+      .catch((error) => {
+        callback(null, error);
+      });
+  },
+
+
+  ///////GET ALL workspace/////////////////////                                            
+  getAllservices: (driverId) => {
+    return new Promise(async (resolve, reject) => {
+      let services = await db
+        .get()
+        .collection(collections.SERVICE_COLLECTION)
+        .find({ driverId: objectId(driverId) }) // Filter by driverId
+        .toArray();
+      resolve(services);
+    });
+  },
+
+  ///////ADD service DETAILS/////////////////////                                            
+  getserviceDetails: (serviceId) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(collections.SERVICE_COLLECTION)
+        .findOne({
+          _id: objectId(serviceId)
+        })
+        .then((response) => {
+          resolve(response);
+        });
+    });
+  },
+
+  ///////DELETE service/////////////////////                                            
+  deleteservice: (serviceId) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(collections.SERVICE_COLLECTION)
+        .removeOne({
+          _id: objectId(serviceId)
+        })
+        .then((response) => {
+          console.log(response);
+          resolve(response);
+        });
+    });
+  },
+
+  ///////UPDATE service/////////////////////                                            
+  updateservice: (serviceId, serviceDetails) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(collections.SERVICE_COLLECTION)
+        .updateOne(
+          {
+            _id: objectId(serviceId)
+          },
+          {
+            $set: {
+              wname: serviceDetails.wname,
+              seat: serviceDetails.seat,
+              Price: serviceDetails.Price,
+              format: serviceDetails.format,
+              desc: serviceDetails.desc,
+              baddress: serviceDetails.baddress,
+
+            },
+          }
+        )
+        .then((response) => {
+          resolve();
+        });
+    });
+  },
+
+
+  ///////DELETE ALL service/////////////////////                                            
+  deleteAllservices: () => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(collections.SERVICE_COLLECTION)
+        .remove({})
+        .then(() => {
+          resolve();
+        });
+    });
+  },
+
+
+
   ///////ADD notification/////////////////////                                         
   addnotification: (notification, callback) => {
     console.log(notification);
@@ -113,107 +218,6 @@ module.exports = {
     });
   },
 
-  ///////ADD workspace/////////////////////                                         
-  addworkspace: (workspace, driverId, callback) => {
-    if (!driverId || !objectId.isValid(driverId)) {
-      return callback(null, new Error("Invalid or missing driverId"));
-    }
-
-    workspace.Price = parseInt(workspace.Price);
-    workspace.driverId = objectId(driverId); // Associate workspace with the driver
-
-    db.get()
-      .collection(collections.WORKSPACE_COLLECTION)
-      .insertOne(workspace)
-      .then((data) => {
-        callback(data.ops[0]._id); // Return the inserted workspace ID
-      })
-      .catch((error) => {
-        callback(null, error);
-      });
-  },
-
-
-  ///////GET ALL workspace/////////////////////                                            
-  getAllworkspaces: (driverId) => {
-    return new Promise(async (resolve, reject) => {
-      let workspaces = await db
-        .get()
-        .collection(collections.WORKSPACE_COLLECTION)
-        .find({ driverId: objectId(driverId) }) // Filter by driverId
-        .toArray();
-      resolve(workspaces);
-    });
-  },
-
-  ///////ADD workspace DETAILS/////////////////////                                            
-  getworkspaceDetails: (workspaceId) => {
-    return new Promise((resolve, reject) => {
-      db.get()
-        .collection(collections.WORKSPACE_COLLECTION)
-        .findOne({
-          _id: objectId(workspaceId)
-        })
-        .then((response) => {
-          resolve(response);
-        });
-    });
-  },
-
-  ///////DELETE workspace/////////////////////                                            
-  deleteworkspace: (workspaceId) => {
-    return new Promise((resolve, reject) => {
-      db.get()
-        .collection(collections.WORKSPACE_COLLECTION)
-        .removeOne({
-          _id: objectId(workspaceId)
-        })
-        .then((response) => {
-          console.log(response);
-          resolve(response);
-        });
-    });
-  },
-
-  ///////UPDATE workspace/////////////////////                                            
-  updateworkspace: (workspaceId, workspaceDetails) => {
-    return new Promise((resolve, reject) => {
-      db.get()
-        .collection(collections.WORKSPACE_COLLECTION)
-        .updateOne(
-          {
-            _id: objectId(workspaceId)
-          },
-          {
-            $set: {
-              wname: workspaceDetails.wname,
-              seat: workspaceDetails.seat,
-              Price: workspaceDetails.Price,
-              format: workspaceDetails.format,
-              desc: workspaceDetails.desc,
-              baddress: workspaceDetails.baddress,
-
-            },
-          }
-        )
-        .then((response) => {
-          resolve();
-        });
-    });
-  },
-
-
-  ///////DELETE ALL workspace/////////////////////                                            
-  deleteAllworkspaces: () => {
-    return new Promise((resolve, reject) => {
-      db.get()
-        .collection(collections.WORKSPACE_COLLECTION)
-        .remove({})
-        .then(() => {
-          resolve();
-        });
-    });
-  },
 
 
   addProduct: (product, callback) => {
@@ -393,10 +397,25 @@ module.exports = {
     });
   },
 
+  getAllServiceOrders: (driverId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let serviceorders = await db
+          .get()
+          .collection(collections.SERVICE_ORDER_COLLECTION)
+          .find({ "driverId": objectId(driverId) }) // Filter by driver ID
+          .toArray();
+        resolve(serviceorders);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+
   changeStatus: (status, orderId) => {
     return new Promise((resolve, reject) => {
       db.get()
-        .collection(collections.ORDER_COLLECTION)
+        .collection(collections.SERVICE_ORDER_COLLECTION)
         .updateOne(
           { _id: objectId(orderId) },
           {
@@ -416,48 +435,14 @@ module.exports = {
       try {
         // Fetch the order to get the associated workspace ID
         const order = await db.get()
-          .collection(collections.ORDER_COLLECTION)
+          .collection(collections.SERVICE_ORDER_COLLECTION)
           .findOne({ _id: objectId(orderId) });
 
         if (!order) {
           return reject(new Error("Order not found."));
         }
 
-        const workspaceId = order.workspace._id; // Get the workspace ID from the order
 
-        // Remove the order from the database
-        await db.get()
-          .collection(collections.ORDER_COLLECTION)
-          .deleteOne({ _id: objectId(orderId) });
-
-        // Get the current seat count from the workspace
-        const workspaceDoc = await db.get()
-          .collection(collections.WORKSPACE_COLLECTION)
-          .findOne({ _id: objectId(workspaceId) });
-
-        // Check if the seat field exists and is a string
-        if (workspaceDoc && workspaceDoc.seat) {
-          let seatCount = Number(workspaceDoc.seat); // Convert seat count from string to number
-
-          // Check if the seatCount is a valid number
-          if (!isNaN(seatCount)) {
-            seatCount += 1; // Increment the seat count
-
-            // Convert back to string and update the workspace seat count
-            await db.get()
-              .collection(collections.WORKSPACE_COLLECTION)
-              .updateOne(
-                { _id: objectId(workspaceId) },
-                { $set: { seat: seatCount.toString() } } // Convert number back to string
-              );
-
-            resolve(); // Successfully updated the seat count
-          } else {
-            return reject(new Error("Seat count is not a valid number."));
-          }
-        } else {
-          return reject(new Error("Workspace not found or seat field is missing."));
-        }
       } catch (error) {
         console.error("Error canceling order:", error);
         reject(error);

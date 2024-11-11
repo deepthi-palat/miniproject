@@ -192,23 +192,48 @@ router.post("/add-workspace", function (req, res) {
 router.get("/edit-workspace/:id", verifySignedIn, async function (req, res) {
   let provider = req.session.provider;
   let workspaceId = req.params.id;
-  let workspace = await providerHelper.getworkspaceDetails(workspaceId);
-  console.log(workspace);
-  res.render("provider/edit-workspace", { provider: true, layout: "layout", workspace, provider });
+
+  if (!ObjectId.isValid(workspaceId)) {
+    return res.status(400).send("Invalid workspace ID");
+  }
+
+  try {
+    let workspace = await providerHelper.getworkspaceDetails(workspaceId);
+    if (!workspace) {
+      return res.status(404).send("Workspace not found");
+    }
+    res.render("provider/edit-workspace", { provider: true, layout: "layout", workspace, provider });
+  } catch (error) {
+    console.error("Error retrieving workspace:", error);
+    res.status(500).send("Failed to retrieve workspace details");
+  }
 });
 
+
 ///////EDIT workspace/////////////////////                                         
-router.post("/edit-workspace/:id", verifySignedIn, function (req, res) {
+router.post("/edit-workspace/:id", verifySignedIn, async function (req, res) {
   let workspaceId = req.params.id;
-  providerHelper.updateworkspace(workspaceId, req.body).then(() => {
-    if (req.files) {
+
+  // Validate workspaceId
+  if (!ObjectId.isValid(workspaceId)) {
+    return res.status(400).send("Invalid workspace ID");
+  }
+
+  try {
+    // Update workspace details
+    await providerHelper.updateworkspace(workspaceId, req.body);
+
+    // Check if there's a new image to upload
+    if (req.files && req.files.Image) {
       let image = req.files.Image;
-      if (image) {
-        image.mv("./public/images/workspace-images/" + workspaceId + ".png");
-      }
+      await image.mv("./public/images/workspace-images/" + workspaceId + ".png");
     }
+
     res.redirect("/provider/all-workspaces");
-  });
+  } catch (error) {
+    console.error("Error updating workspace:", error);
+    res.status(500).send("Failed to update workspace");
+  }
 });
 
 ///////DELETE workspace/////////////////////                                         

@@ -40,6 +40,10 @@ app.engine(
       eq: function (a, b) {
         return a === b;
       },
+      NanValue: function (amount) {
+        return isNaN(amount) ? 0 : amount;
+      }
+
     },
   })
 );

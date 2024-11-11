@@ -24,6 +24,8 @@
                                     <tr>
                                         <th>No.</th>
                                         <th data-type="date" data-format="YYYY/DD/MM">Joined Date</th>
+                                        <th>Image</th>
+                                        <th>Licence</th>
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Phone</th>
@@ -37,6 +39,10 @@
                                     <tr>
                                         <td>{{incremented @index}}</td>
                                         <td>{{this.date}}</td>
+                                        <td> <img src="/images/driver-images/{{this._id}}.png" width="50px" alt="">
+                                        </td>
+                                        <td><a href="/driver-pdf/{{this._id}}.pdf" target="_blank"
+                                                class="btn btn-dark btn-sm">View</a></td>
                                         <td>{{this.Companyname}}</td>
                                         <td>{{this.Email}}</td>
                                         <td>{{this.Phone}}</td>

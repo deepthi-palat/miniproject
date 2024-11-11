@@ -18,9 +18,10 @@ const verifySignedIn = (req, res, next) => {
 /* GET home page. */
 router.get("/", async function (req, res, next) {
   let user = req.session.user;
-  userHelper.getAllworkspaces().then((workspaces) => {
-    res.render("users/home", { admin: false, workspaces, user });
-  });
+  let workspaces = await userHelper.getAllworkspaces();
+  let services = await userHelper.getAllservices()
+
+  res.render("users/home", { admin: false, workspaces, services, user });
 });
 
 
@@ -397,6 +398,57 @@ router.post('/place-order', async (req, res) => {
 
 
 
+///////////
+
+router.get('/place-order-service/:id', verifySignedIn, async (req, res) => {
+  const serviceId = req.params.id;
+
+  // Validate the service ID
+  if (!ObjectId.isValid(serviceId)) {
+    return res.status(400).send('Invalid service ID format');
+  }
+
+  let user = req.session.user;
+
+  // Fetch the product details by ID
+  let service = await userHelper.getServiceDetails(serviceId);
+
+  // If no service is found, handle the error
+  if (!service) {
+    return res.status(404).send('Service not found');
+  }
+
+  // Render the place-order page with service details
+  res.render('users/place-order-service', { user, service });
+});
+
+router.post('/place-order-service', async (req, res) => {
+  let user = req.session.user;
+  let serviceId = req.body.serviceId;
+
+  // Fetch service details
+  let service = await userHelper.getServiceDetails(serviceId);
+  let totalPrice = service.Price; // Get the price from the service
+
+  // Call placeOrder function
+  userHelper.placeOrderService(req.body, service, totalPrice, user)
+    .then((orderId) => {
+      if (req.body["payment-method"] === "COD") {
+        res.json({ codSuccess: true });
+      } else {
+        userHelper.generateRazorpay(orderId, totalPrice).then((response) => {
+          res.json(response);
+        });
+      }
+    })
+    .catch((err) => {
+      console.error("Error placing order:", err);
+      res.status(500).send("Internal Server Error");
+    });
+});
+
+
+
 router.post("/verify-payment", async (req, res) => {
   console.log(req.body);
   userHelper
@@ -423,7 +475,9 @@ router.get("/orders", verifySignedIn, async function (req, res) {
   let userId = req.session.user._id;
   // Fetch user orders
   let orders = await userHelper.getUserOrder(userId);
-  res.render("users/orders", { admin: false, user, orders });
+  let serviceorders = await userHelper.getUserServiceorders(userId);
+
+  res.render("users/orders", { admin: false, user, orders, serviceorders });
 });
 
 router.get("/view-ordered-workspaces/:id", verifySignedIn, async function (req, res) {
