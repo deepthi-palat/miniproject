@@ -127,6 +127,7 @@ router.get("/signup", function (req, res) {
   }
 });
 
+
 router.post("/signup", async function (req, res) {
   const { Fname, Email, Phone, Address, Pincode, District, Password } = req.body;
   let errors = {};
